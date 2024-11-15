@@ -1,0 +1,94 @@
+CREATE DATABASE ecommerce;
+
+USE ecommerce;
+
+CREATE TABLE customers(customerId INT PRIMARY KEY AUTO_INCREMENT,
+customerName VARCHAR(100)NOT NULL,
+email VARCHAR(100) NOT NULL,
+adress VARCHAR(100)NOT NULL);
+
+CREATE TABLE orders(orederId INT PRIMARY KEY AUTO_INCREMENT,
+customerId INT ,
+order_date DATE NOT NULL,
+total_amount DECIMAL(10,2) NOT NULL,
+FOREIGN KEY (customerId) REFERENCES customers (customerId));
+
+CREATE TABLE products(productId INT PRIMARY KEY AUTO_INCREMENT,
+product_name VARCHAR (100) NOT NULL,
+price DECIMAL(10,2),
+prods_description TEXT);
+
+INSERT INTO customers (customerName, email,adress)
+VALUES("Anbu","anbu123@gmail.com","1st street"),
+("Yacin","yacin123@gmail.com","4th street"),
+("jai","jai@345gmail.com","5th street"),
+("sridhar","sridhar12@gmail.com","2nd street");
+
+INSERT INTO products(product_name,price,prods_description)
+VALUES ('product A', 30.00,"description of product A"),
+("product B", 40.00,"description of product B"),
+("product C", 50.00,"description of product C"),
+("product D", 60.00,"description of product D");
+
+INSERT INTO orders (customerId,order_date,total_amount)
+VALUES(1,'2024-10-11', 100.00),
+(2,'2024-10-15', 200.00),
+(3,'2024-10-16', 300.00);
+
+-- Retrieve all customers who have placed an order in the last 30 days
+SELECT DISTINCT customers.*
+FROM customers
+JOIN orders ON customers.customerId = orders.customerId
+WHERE orders.order_date >= CURDATE() - INTERVAL 30 DAY;
+
+-- Get the total amount of all orders placed by each customer
+SELECT customers.customerName, SUM(orders.total_amount) AS total_spent
+FROM customers
+JOIN orders ON customers.customerId = orders.customerId
+GROUP BY customers.customerId;
+
+-- Update the price of Product C to 45.00
+UPDATE products
+SET price = 45.00 
+WHERE product_name = "Product C";
+
+SELECT * FROM products;
+
+-- Add a new column discount to the products table
+ALTER TABLE products 
+ADD COLUMN discount DECIMAL(5,2) NULL;
+
+SELECT * FROM products;
+
+-- Retrieve the top 3 products with the highest price
+SELECT * FROM products
+ORDER BY price DESC
+LIMIT 3; 
+
+-- Join the orders and customers tables to retrieve the customer's name and order date for each order
+ SELECT customerName, orders.order_date
+FROM customers
+JOIN orders 
+ON customers.customerId = orders.customerId;
+
+-- Retrieve the orders with a total amount greater than 150.00
+SELECT * FROM orders
+WHERE total_amount > 150.00;
+
+-- Normalize the database by creating a separate table for order items and updating the orders table to reference the order_items table
+ CREATE TABLE order_items (items_id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+ orederId INT,
+ productId INT,
+ quantity INT,
+ FOREIGN KEY (orederId) REFERENCES orders(orederId),
+ FOREIGN KEY (productId) REFERENCES products(productId)
+ );
+
+-- Retrieve the average total of all orders
+SELECT AVG(total_amount) FROM orders;
+
+
+
+
+
+
